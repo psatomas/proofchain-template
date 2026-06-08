@@ -3,6 +3,8 @@ import { getSignerContract } from "../lib/contract";
 import { useState } from "react";
 import { motion } from "framer-motion";
 
+import { hashPdf } from "../lib/hashPdf";
+
 import {
     FileCode2,
     Shield,
@@ -10,7 +12,8 @@ import {
     Fingerprint,
     Loader2,
     CheckCircle2,
-    AlertCircle
+    AlertCircle,
+    FileText
 } from "lucide-react";
 
 export default function RegisterCard() {
@@ -18,9 +21,11 @@ export default function RegisterCard() {
     const [protocolName, setProtocolName] = useState("");
     const [version, setVersion] = useState("");
     const [contractAddress, setContractAddress] = useState("");
-    const [auditHash, setAuditHash] = useState("");
-    const [commitHash, setCommitHash] = useState("");
     const [auditor, setAuditor] = useState("");
+
+    const [pdfFile, setPdfFile] = useState<File | null>(null);
+
+    const [commitHash, setCommitHash] = useState("");
 
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
@@ -28,92 +33,49 @@ export default function RegisterCard() {
 
     async function handleSubmit() {
 
-    try {
+        try {
+            setLoading(true);
+            setError("");
+            setSuccess(false);
 
-        setLoading(true);
-        setError("");
-        setSuccess(false);
+            // =====================================================
+            // VALIDATION
+            // =====================================================
 
-        // =====================================================
-        // VALIDATION
-        // =====================================================
+            if (!protocolName.trim()) throw new Error("Protocol name is required");
+            if (!ethers.isAddress(contractAddress)) throw new Error("Invalid contract address");
+            if (!version.trim()) throw new Error("Version is required");
+            if (!auditor.trim()) throw new Error("Auditor is required");
+            if (!pdfFile) throw new Error("PDF file is required");
+            if (!commitHash.trim()) throw new Error("Commit hash is required");
 
-        if (!protocolName.trim()) {
-            throw new Error(
-                "Protocol name is required"
-            );
-        }
+            // =====================================================
+            // PDF HASH (CORE OF YOUR SYSTEM)
+            // =====================================================
 
-        if (!ethers.isAddress(contractAddress)) {
-            throw new Error(
-                "Invalid contract address"
-            );
-        }
+            const auditHashBytes32 = await hashPdf(pdfFile);
 
-        if (!version.trim()) {
-            throw new Error(
-                "Version is required"
-            );
-        }
+            // =====================================================
+            // COMMIT HASH (OPTIONAL AUTO-FIX)
+            // =====================================================
 
-        if (!auditHash.trim()) {
-            throw new Error(
-                "Audit hash is required"
-            );
-        }
+            let commitHashBytes32: string;
 
-        if (!commitHash.trim()) {
-            throw new Error(
-                "Commit hash is required"
-            );
-        }
+            if (commitHash.startsWith("0x") && commitHash.length === 66) {
+                commitHashBytes32 = commitHash;
+            } else {
+                commitHashBytes32 = ethers.keccak256(
+                    ethers.toUtf8Bytes(commitHash)
+                );
+            }
 
-        if (!auditor.trim()) {
-            throw new Error(
-                "Auditor is required"
-            );
-        }
+            // =====================================================
+            // CONTRACT
+            // =====================================================
 
-        // =====================================================
-        // CONVERT TO BYTES32
-        // =====================================================
+            const contract = await getSignerContract();
 
-        const auditHashBytes32 =
-            ethers.keccak256(
-                ethers.toUtf8Bytes(
-                    auditHash.trim()
-                )
-            );
-
-        const commitHashBytes32 =
-            ethers.keccak256(
-                ethers.toUtf8Bytes(
-                    commitHash.trim()
-                )
-            );
-
-        // =====================================================
-        // DEBUG
-        // =====================================================
-
-        console.log({
-            protocolName,
-            contractAddress,
-            version,
-            auditHashBytes32,
-            commitHashBytes32,
-            auditor
-        });
-
-        // =====================================================
-        // CONTRACT
-        // =====================================================
-
-        const contract =
-            await getSignerContract();
-
-        const tx =
-            await contract.registerProtocolRecord(
+            const tx = await contract.registerProtocolRecord(
                 protocolName.trim(),
                 contractAddress,
                 version.trim(),
@@ -122,118 +84,70 @@ export default function RegisterCard() {
                 auditor.trim()
             );
 
-        await tx.wait();
+            await tx.wait();
 
-        // =====================================================
-        // SUCCESS
-        // =====================================================
+            // =====================================================
+            // SUCCESS RESET
+            // =====================================================
 
-        setSuccess(true);
+            setSuccess(true);
 
-        setProtocolName("");
-        setVersion("");
-        setContractAddress("");
-        setAuditHash("");
-        setCommitHash("");
-        setAuditor("");
+            setProtocolName("");
+            setVersion("");
+            setContractAddress("");
+            setAuditor("");
+            setCommitHash("");
+            setPdfFile(null);
 
-    } catch (err: any) {
+        } catch (err: any) {
 
-        console.error(err);
+            console.error(err);
 
-        setError(
-            err?.reason ||
-            err?.shortMessage ||
-            err?.message ||
-            "Transaction failed"
-        );
+            setError(
+                err?.reason ||
+                err?.shortMessage ||
+                err?.message ||
+                "Transaction failed"
+            );
 
-    } finally {
-
-        setLoading(false);
+        } finally {
+            setLoading(false);
+        }
     }
-}
 
     return (
-
-        <section
-            className="
-                relative
-                z-10
-                px-6
-                pb-32
-            "
-        >
-            <div
-                className="
-                    max-w-7xl
-                    mx-auto
-                "
-            >
-
-                {/* CARD */}
+        <section className="relative z-10 px-6 pb-32">
+            <div className="max-w-7xl mx-auto">
 
                 <motion.div
-
-                    initial={{
-                        opacity: 0,
-                        y: 40
-                    }}
-
-                    whileInView={{
-                        opacity: 1,
-                        y: 0
-                    }}
-
-                    transition={{
-                        duration: 0.7
-                    }}
-
-                    viewport={{
-                        once: true
-                    }}
-
-                    className="
-                        relative
-                        overflow-hidden
-                        rounded-[32px]
-                        border
-                        border-white/10
-                        bg-white/5
-                        backdrop-blur-2xl
-                        p-8
-                        md:p-10
-                    "
+                    initial={{ opacity: 0, y: 40 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.7 }}
+                    viewport={{ once: true }}
+                    className="relative overflow-hidden rounded-[32px] border border-white/10 bg-white/5 backdrop-blur-2xl p-8 md:p-10"
                 >
 
-                    {/* GLOW */}
+                    <div className="absolute top-0 right-0 w-[300px] h-[300px] bg-cyan-400/10 blur-[120px] rounded-full" />
 
-                    <div
-                        className="
-                            absolute
-                            top-0
-                            right-0
-                            w-[300px]
-                            h-[300px]
-                            bg-cyan-400/10
-                            blur-[120px]
-                            rounded-full
-                        "
-                    />
+                    <div className="relative grid grid-cols-1 md:grid-cols-2 gap-6">
 
-                    {/* GRID */}
+                        {/* PDF UPLOAD (NEW CORE PIECE) */}
+                        <div className="md:col-span-2">
+                            <label className="mb-3 flex items-center gap-2 text-sm text-white/70">
+                                <FileText size={18} />
+                                Audit PDF
+                            </label>
 
-                    <div
-                        className="
-                            relative
-                            grid
-                            grid-cols-1
-                            md:grid-cols-2
-                            gap-6
-                        "
-                    >
-
-                        {/* PROTOCOL NAME */}
+                            <input
+                                type="file"
+                                accept="application/pdf"
+                                onChange={(e) => {
+                                    const file = e.target.files?.[0] || null;
+                                    setPdfFile(file);
+                                }}
+                                className="w-full px-5 py-4 rounded-2xl border border-white/10 bg-black/20 text-white"
+                            />
+                        </div>
 
                         <InputField
                             icon={<FileCode2 size={18} />}
@@ -243,8 +157,6 @@ export default function RegisterCard() {
                             onChange={setProtocolName}
                         />
 
-                        {/* VERSION */}
-
                         <InputField
                             icon={<Shield size={18} />}
                             label="Version"
@@ -252,8 +164,6 @@ export default function RegisterCard() {
                             value={version}
                             onChange={setVersion}
                         />
-
-                        {/* CONTRACT */}
 
                         <div className="md:col-span-2">
                             <InputField
@@ -265,31 +175,15 @@ export default function RegisterCard() {
                             />
                         </div>
 
-                        {/* AUDIT HASH */}
-
-                        <div className="md:col-span-2">
-                            <InputField
-                                icon={<Hash size={18} />}
-                                label="Audit Hash"
-                                placeholder="0x audit hash"
-                                value={auditHash}
-                                onChange={setAuditHash}
-                            />
-                        </div>
-
-                        {/* COMMIT HASH */}
-
                         <div className="md:col-span-2">
                             <InputField
                                 icon={<Hash size={18} />}
                                 label="Commit Hash"
-                                placeholder="0x commit hash"
+                                placeholder="git commit or 0x..."
                                 value={commitHash}
                                 onChange={setCommitHash}
                             />
                         </div>
-
-                        {/* AUDITOR */}
 
                         <div className="md:col-span-2">
                             <InputField
@@ -302,62 +196,24 @@ export default function RegisterCard() {
                         </div>
                     </div>
 
-                    {/* ACTIONS */}
-
-                    <div
-                        className="
-                            relative
-                            mt-10
-                            flex
-                            flex-col
-                            md:flex-row
-                            items-start
-                            md:items-center
-                            justify-between
-                            gap-6
-                        "
-                    >
+                    {/* STATUS */}
+                    <div className="relative mt-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
 
                         <div className="space-y-2">
 
-                            <p
-                                className="
-                                    text-sm
-                                    text-white/50
-                                "
-                            >
-                                Transactions are registered
-                                on-chain and permanently
-                                auditable.
+                            <p className="text-sm text-white/50">
+                                PDF is hashed and anchored on-chain via keccak256.
                             </p>
 
                             {success && (
-                                <div
-                                    className="
-                                        flex
-                                        items-center
-                                        gap-2
-                                        text-green-400
-                                        text-sm
-                                    "
-                                >
+                                <div className="flex items-center gap-2 text-green-400 text-sm">
                                     <CheckCircle2 size={16} />
                                     Protocol successfully registered.
                                 </div>
                             )}
 
                             {error && (
-                                <div
-                                    className="
-                                        flex
-                                        items-center
-                                        gap-2
-                                        text-red-400
-                                        text-sm
-                                        max-w-xl
-                                        break-words
-                                    "
-                                >
+                                <div className="flex items-center gap-2 text-red-400 text-sm max-w-xl break-words">
                                     <AlertCircle size={16} />
                                     {error}
                                 </div>
@@ -367,36 +223,16 @@ export default function RegisterCard() {
                         <button
                             onClick={handleSubmit}
                             disabled={loading}
-                            className="
-                                px-8
-                                py-4
-                                rounded-2xl
-                                bg-cyan-400
-                                text-black
-                                font-semibold
-                                hover:scale-105
-                                transition
-                                shadow-[0_0_40px_rgba(34,211,238,0.35)]
-                                disabled:opacity-60
-                                disabled:hover:scale-100
-                                flex
-                                items-center
-                                gap-2
-                            "
+                            className="px-8 py-4 rounded-2xl bg-cyan-400 text-black font-semibold hover:scale-105 transition shadow-[0_0_40px_rgba(34,211,238,0.35)] disabled:opacity-60 flex items-center gap-2"
                         >
-
                             {loading ? (
                                 <>
-                                    <Loader2
-                                        size={18}
-                                        className="animate-spin"
-                                    />
+                                    <Loader2 size={18} className="animate-spin" />
                                     Confirming Transaction...
                                 </>
                             ) : (
                                 "Submit On-Chain"
                             )}
-
                         </button>
                     </div>
                 </motion.div>
@@ -413,28 +249,10 @@ type InputProps = {
     onChange: (value: string) => void;
 };
 
-function InputField({
-    icon,
-    label,
-    placeholder,
-    value,
-    onChange
-}: InputProps) {
-
+function InputField({ icon, label, placeholder, value, onChange }: InputProps) {
     return (
-
         <div>
-
-            <label
-                className="
-                    mb-3
-                    flex
-                    items-center
-                    gap-2
-                    text-sm
-                    text-white/70
-                "
-            >
+            <label className="mb-3 flex items-center gap-2 text-sm text-white/70">
                 {icon}
                 {label}
             </label>
@@ -443,20 +261,7 @@ function InputField({
                 value={value}
                 onChange={(e) => onChange(e.target.value)}
                 placeholder={placeholder}
-                className="
-                    w-full
-                    px-5
-                    py-4
-                    rounded-2xl
-                    border
-                    border-white/10
-                    bg-black/20
-                    text-white
-                    outline-none
-                    transition
-                    focus:border-cyan-400/40
-                    focus:bg-black/30
-                "
+                className="w-full px-5 py-4 rounded-2xl border border-white/10 bg-black/20 text-white outline-none focus:border-cyan-400/40 focus:bg-black/30"
             />
         </div>
     );

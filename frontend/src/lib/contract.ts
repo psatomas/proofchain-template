@@ -2,7 +2,7 @@ import { ethers } from "ethers";
 
 import artifact from "../artifacts/ProtocolProvenanceRegistry.json"
 
-const CONTRACT_ADDRESS = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
+const CONTRACT_ADDRESS = "0x8166431404B7f8e5e9d351333e08548a23Bbdae0";
 
 declare global {
     interface Window {

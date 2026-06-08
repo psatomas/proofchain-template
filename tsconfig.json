@@ -9,13 +9,14 @@
     "outDir": "dist",
     "types": [
       "node",
-      "hardhat/types"
+      "mocha"
     ]
   },
   "include": [
     "./hardhat.config.ts",
     "./scripts",
     "./test",
-    "./ignition"
+    "./ignition",
+    "./api"
   ]
 }
