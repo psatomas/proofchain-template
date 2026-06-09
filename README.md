@@ -190,15 +190,19 @@ MetaMask → Sign → Transaction → Smart Contract → Blockchain → UI Updat
 
 User → Wallet → Metadata → Blockchain Storage
 
-### Explorer
-
-User → Smart Contract → History → Timeline UI
+![Flow](assets/flow-register.png)
 
 ### Verify
 
 PDF → Hash → On-chain Comparison → VALID / INVALID
 
-![Flow](assets/protocol-flow.png)
+
+![Flow](assets/flow-verify.png)
+
+### Explorer
+
+User → Smart Contract → History → Timeline UI
+
 
 ---
 
@@ -411,13 +415,15 @@ MetaMask → Assinatura → Transação → Smart Contract → Blockchain → UI
 Registro:
 Usuário → Carteira → Dados → Blockchain
 
-Explorer:
-Usuário → Smart Contract → Histórico → Timeline
+![Flow](assets/flow-register.png)
 
 Verificação:
 PDF → Hash → Comparação → VALID / INVALID
 
-![Flow](assets/protocol-flow.png)
+![Flow](assets/flow-verify.png)
+
+Explorer:
+Usuário → Smart Contract → Histórico → Timeline
 
 ---
 
