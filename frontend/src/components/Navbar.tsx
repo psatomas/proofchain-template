@@ -1,6 +1,4 @@
 import { Link, NavLink } from "react-router-dom";
-import { Blocks } from "lucide-react";
-
 import ConnectWalletButton from "./ConnectWalletButton";
 
 export default function Navbar() {
