@@ -1,63 +1,100 @@
 # 📌 ProofChain
 
-## 🌐 Languages
+![Solidity](https://img.shields.io/badge/Solidity-0.8.x-blue)
+![Hardhat](https://img.shields.io/badge/Hardhat-Framework-yellow)
+![Ethereum](https://img.shields.io/badge/Sepolia-Testnet-purple)
+![React](https://img.shields.io/badge/React-Frontend-61dafb)
+![Status](https://img.shields.io/badge/Build-Production--Ready-brightgreen)
 
-- 🇺🇸 [English Version](#-english-version)
-- 🇧🇷 [Versão Português](#-versão-português)
+---
+
+## 🌐 Navigation / Navegação
+
+- 🇺🇸 English Version → scroll to "# 🇺🇸 English Version"
+- 🇧🇷 Versão Português → scroll to "# 🇧🇷 Versão Português"
 
 ---
 
 # 🇺🇸 English Version
 
-## 📌 ProofChain
+## 🚀 ProofChain — One-line Pitch
 
-Blockchain Protocol Provenance & Audit Verification System
-
-ProofChain is a full-stack Web3 application that provides immutable protocol provenance tracking, enabling transparent registration, historical auditing, and cryptographic verification of smart contract evolution using blockchain.
-
-Built for the HackWeb RESTIC 29 Hackathon.
+ProofChain is a **blockchain-based audit provenance system** that makes protocol evolution and audit integrity **cryptographically verifiable and publicly auditable on Ethereum**.
 
 ---
 
-## 🚀 Overview
+## 🚀 Problem
 
-ProofChain enables:
-- On-chain protocol registration
-- Versioned audit history tracking
-- PDF cryptographic verification
-- Immutable provenance exploration
-- MetaMask interaction
-- Sepolia testnet validation
+Web3 audit systems are fragmented:
+
+- Off-chain audit storage
+- No immutable link between audit and protocol evolution
+- No verifiable provenance history
+- Centralized trust assumptions
+
+---
+
+## 💡 Solution
+
+ProofChain introduces a **fully on-chain provenance layer**:
+
+- Immutable protocol registration
+- Versioned audit tracking
+- Cryptographic verification via hashing
+- Public transparency via Ethereum
 
 ---
 
 ## 🧱 Architecture
 
-User → React (Vite + TS) → Ethers.js → Smart Contract → Blockchain State
+```mermaid id="arch-diagram"
+flowchart TD
+A[User] --> B[MetaMask Wallet]
+B --> C[React Frontend]
+C --> D[Ethers.js v6]
+D --> E[Smart Contract - Sepolia]
+E --> F[(Blockchain State)]
 
-Principles:
-- No backend trust assumptions
-- Hash-based verification (PDF → Keccak256)
-- On-chain source of truth
-- Modular Web3 architecture
+C --> G[PDF Hashing Layer]
+G --> E
+E --> C
+```
 
 ---
 
-## ⚙️ Smart Contract Layer
+## ⚙️ Smart Contract
 
-ProtocolProvenanceRegistry.sol:
+**ProtocolProvenanceRegistry.sol**
+
+Core capabilities:
+
 - Protocol registration
 - Version tracking
 - Auditor attribution
-- Audit + commit hash storage
+- Audit hash storage (keccak256)
+- Commit hash tracking
 - Timestamped records
-- onlyOwner protection
-- Event emission
+- onlyOwner access control
+- Event emission for indexing
 
-Read methods:
+Read functions:
 - getProtocolHistory(address)
 - getLatestRecord(address)
 - getRecordCount(address)
+
+---
+
+## 🌍 Live Deployment
+
+- Network: Ethereum Sepolia
+- Contract Address:
+
+```
+0x8166431404B7f8e5e9d351333e08548a23Bbdae0
+```
+
+- Fully verifiable on Etherscan / Blockscout
+- Real gas-based execution enabled
 
 ---
 
@@ -67,98 +104,93 @@ Stack:
 React + TypeScript + Vite + TailwindCSS + Framer Motion + Ethers v6
 
 Pages:
-Home → Register → Explorer → Verify → Audit Summary (optional)
+- Home
+- Register
+- Explorer
+- Verify
 
 ---
 
 ## 🔗 Web3 Layer
 
 Modules:
-- contract.ts
-- web3.ts
-- WalletProvider.tsx
-- hashPdf.ts
-- checkNetwork.ts
+
+- contract.ts → Contract abstraction
+- web3.ts → Provider + signer
+- WalletProvider.tsx → Wallet state
+- hashPdf.ts → Cryptographic hashing
+- checkNetwork.ts → Network validation
 
 Flow:
-MetaMask → Sign → Transaction → Blockchain → UI
+MetaMask → Sign → Transaction → Smart Contract → Blockchain → UI Update
 
 ---
 
 ## 🧾 Core Flows
 
-Register:
-User → Wallet → Metadata → Transaction → On-chain storage
+### Register
+User → Wallet → Metadata → Blockchain Storage
 
-Explorer:
-User → Contract → History → Timeline UI
+### Explorer
+User → Smart Contract → History → Timeline UI
 
-Verify:
-PDF → Hash → Compare → VALID / INVALID
-
----
-
-## 🧪 Development
-
-npm install
-npx hardhat compile
-npx hardhat node
-npx hardhat run scripts/deploy.ts --network localhost
-npx hardhat test
-cd frontend && npm run dev
+### Verify
+PDF → Hash → On-chain Comparison → VALID / INVALID
 
 ---
 
-## 🌍 Deployment
+## 🔐 Security Model
 
-Sepolia Testnet:
-- Smart contract deployed on Ethereum Sepolia
-- MetaMask integration enabled
-- Verified on explorers
-
----
-
-## 🔐 Features
-
-- Immutable audit registry
-- Versioned provenance tracking
-- PDF cryptographic verification
-- Full Web3 wallet integration
-- Real-time blockchain queries
-- End-to-end decentralized system
+- onlyOwner write restriction
+- Hash-based integrity verification
+- No file storage on-chain
+- Fully transparent blockchain state
 
 ---
 
-## 🧠 AI Layer (Optional)
+## 🧠 Trust Model
 
-- Audit summarization
-- Risk classification
-- Insight extraction
-
-AI runs off-chain only.
+- Blockchain = Source of Truth
+- Hashing = Integrity Layer
+- Wallet = Identity Layer
+- Smart Contract = Execution Layer
 
 ---
 
 ## 🏁 Status
 
-All core systems complete:
-Smart Contract • Frontend • Web3 • Testing • Deployment • Verification
+Smart Contract: Complete  
+Frontend: Complete  
+Web3 Integration: Complete  
+Testing: Complete  
+Sepolia Deployment: Complete  
+Verify System: Complete  
 
 ---
 
-## 🚀 Next Steps
+## 🎬 Demo Flow (Judge Walkthrough)
 
-Improve explorer UI
-Add explorer links (Etherscan)
-Enhance verify UX
-Expand AI layer
-Production polish
+1. Connect MetaMask wallet
+2. Register protocol on-chain
+3. View transaction on Sepolia explorer
+4. Navigate Explorer page
+5. Upload audit PDF
+6. Verify hash integrity (VALID / INVALID)
+
+---
+
+## 🚀 Impact
+
+- Removes trust dependency in audits
+- Enables verifiable protocol evolution
+- Provides public audit transparency layer
+- Establishes blockchain-native audit history
 
 ---
 
 ## 👥 Team
 
-Add team members here
+Tomás Patrício da Silva Araújo
 
 ---
 
@@ -170,72 +202,112 @@ MIT
 
 # 🇧🇷 Versão Português
 
-## 📌 ProofChain
+## 🚀 ProofChain — Pitch em uma frase
 
-Sistema de Protocolo de Proveniência e Verificação de Auditoria em Blockchain
-
-ProofChain é uma aplicação Web3 full-stack que fornece rastreamento imutável de protocolos, permitindo registro transparente, auditoria histórica e verificação criptográfica da evolução de contratos inteligentes.
-
-Construído para o Hackathon HackWeb RESTIC 29.
+ProofChain é um sistema de **proveniência de auditoria baseado em blockchain** que torna a evolução de protocolos e auditorias **verificável criptograficamente e publicamente auditável na Ethereum**.
 
 ---
 
-## 🚀 Visão Geral
+## 🚀 Problema
 
-O ProofChain permite:
-- Registro de protocolos na blockchain
-- Histórico versionado de auditoria
-- Verificação de PDFs via hash criptográfico
-- Exploração de histórico imutável
-- Integração com MetaMask
-- Validação na rede Sepolia
+Sistemas de auditoria em Web3 são fragmentados:
+
+- Armazenamento off-chain
+- Sem ligação imutável entre auditoria e evolução do protocolo
+- Histórico não verificável
+- Confiança centralizada
+
+---
+
+## 💡 Solução
+
+O ProofChain introduz uma **camada de proveniência totalmente on-chain**:
+
+- Registro imutável de protocolos
+- Rastreamento versionado de auditorias
+- Verificação criptográfica via hashing
+- Transparência pública via Ethereum
 
 ---
 
 ## 🧱 Arquitetura
 
-Usuário → React → Ethers.js → Smart Contract → Blockchain
+```mermaid id="arch-diagram-pt"
+flowchart TD
+A[Usuário] --> B[MetaMask]
+B --> C[Frontend React]
+C --> D[Ethers.js v6]
+D --> E[Smart Contract - Sepolia]
+E --> F[(Blockchain)]
 
-Princípios:
-- Sem backend centralizado
-- Verificação por hash
-- Blockchain como fonte de verdade
-- Arquitetura modular
+C --> G[Camada de Hash PDF]
+G --> E
+E --> C
+```
 
 ---
 
 ## ⚙️ Smart Contract
 
-ProtocolProvenanceRegistry.sol:
+**ProtocolProvenanceRegistry.sol**
+
+Funcionalidades:
+
 - Registro de protocolos
 - Controle de versões
-- Auditoria associada
-- Hash de auditoria e commit
-- Timestamp dos registros
-- Proteção onlyOwner
-- Eventos para indexação
+- Atribuição de auditor
+- Hash de auditoria (keccak256)
+- Hash de commit
+- Timestamp
+- Controle onlyOwner
+- Eventos on-chain
+
+Funções de leitura:
+- getProtocolHistory(address)
+- getLatestRecord(address)
+- getRecordCount(address)
+
+---
+
+## 🌍 Deploy
+
+- Rede: Ethereum Sepolia
+- Contrato:
+
+```
+0x8166431404B7f8e5e9d351333e08548a23Bbdae0
+```
+
+- Verificável em exploradores públicos
+- Execução real com gas
 
 ---
 
 ## 🌐 Frontend
 
+Stack:
 React + TypeScript + Vite + TailwindCSS + Framer Motion + Ethers v6
 
 Páginas:
-Home, Register, Explorer, Verify, Audit Summary (opcional)
+- Home
+- Register
+- Explorer
+- Verify
 
 ---
 
-## 🔗 Web3
+## 🔗 Web3 Layer
 
-- contract.ts
-- web3.ts
-- WalletProvider.tsx
-- hashPdf.ts
-- checkNetwork.ts
+Módulos:
+
+- contract.ts → abstração de contrato
+- web3.ts → provider + signer
+- WalletProvider → estado da carteira
+- hashPdf.ts → hashing
+- checkNetwork.ts → validação de rede
 
 Fluxo:
-MetaMask → Assinatura → Blockchain → UI
+MetaMask → Assinatura → Transação → Smart Contract → Blockchain → UI
 
 ---
 
@@ -245,70 +317,63 @@ Registro:
 Usuário → Carteira → Dados → Blockchain
 
 Explorer:
-Usuário → Contrato → Histórico
+Usuário → Smart Contract → Histórico → Timeline
 
-Verify:
-PDF → Hash → Validação
-
----
-
-## 🧪 Desenvolvimento
-
-npm install
-npx hardhat compile
-npx hardhat node
-npx hardhat run scripts/deploy.ts
-npx hardhat test
-cd frontend && npm run dev
+Verificação:
+PDF → Hash → Comparação → VALID / INVALID
 
 ---
 
-## 🌍 Deploy
+## 🔐 Segurança
 
-Sepolia Testnet com MetaMask e verificação em explorer
-
----
-
-## 🔐 Funcionalidades
-
-- Registro imutável
-- Histórico versionado
-- Verificação de PDF
-- Integração Web3 completa
-- Consulta on-chain
+- onlyOwner para escrita
+- Verificação por hash
+- Sem armazenamento de arquivos sensíveis
+- Estado público e auditável
 
 ---
 
-## 🧠 IA (Opcional)
+## 🧠 Modelo de Confiança
 
-Resumo de auditoria, risco e insights (off-chain)
+- Blockchain = Verdade
+- Hash = Integridade
+- Carteira = Identidade
+- Smart Contract = Execução
 
 ---
 
 ## 🏁 Status
 
-Sistema completo: Smart Contract • Frontend • Web3 • Deploy • Verify
+Completo em todas as camadas
 
 ---
 
-## 🚀 Próximos passos
+## 🎬 Demonstração
 
-Melhorar Explorer
-Adicionar links de explorer
-Aprimorar UX do Verify
-Expandir IA
-Polimento final
+1. Conectar MetaMask
+2. Registrar protocolo
+3. Ver transação no explorer
+4. Abrir Explorer
+5. Enviar PDF
+6. Verificar integridade
+
+---
+
+## 🚀 Impacto
+
+- Remove dependência de confiança centralizada
+- Torna auditorias verificáveis
+- Cria histórico público de protocolos
+- Estabelece camada de auditoria on-chain
 
 ---
 
 ## 👥 Time
 
-Adicionar integrantes
+Tomás Patrício da Silva Araújo
 
 ---
 
 ## 📄 Licença
 
 MIT
-```
-
